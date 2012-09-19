@@ -2,7 +2,7 @@
 // lint at http://www.javascriptlint.com/online_lint.php
 // 1 warning:
 //
-function BitGram(containerId, sign, inputId, gridNum, cellSize) {
+function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 
 	var defaults = {
 		SIGN:				"BitGram",
@@ -27,7 +27,7 @@ function BitGram(containerId, sign, inputId, gridNum, cellSize) {
 	this.cellSize  = cellSize || defaults.CELL_SIZE;
 	this.grid      = new Grid(this.gridNum);
 
-	this.color     = defaults.COLOR_TRUE;
+	this.color     = color || defaults.COLOR_TRUE;
 	this.colorMode = 0;		// 0: #3333, 1: single random, 2: multi random
 
 
