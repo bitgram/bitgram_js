@@ -1,0 +1,73 @@
+.hero-unit {
+	box-shadow: -3px -3px 3px #aaa inset, 3px 3px 2px 1px #999;
+	background-image: url(img/batthern.png) !important;
+}
+
+p, ul, ol, blockquote {
+	font-size: 10.5pt !important;
+	line-height: 1.5 !important;
+}
+
+
+footer {
+	color: #666;
+}
+
+h5 {
+	margin-top: 2em;
+	font-size: 12pt;
+}
+
+#bitgram_statcounter {
+	text-align: right;
+}
+
+.figure-desc {
+	font-size: 75%;
+	line-height: 1.2em;
+}
+
+.brand {
+	font-weight: 600 !important;
+	margin: 0 1em !important;
+}
+
+aside h2 {
+	line-height: 20px;
+	font-size: 18px;
+}
+
+.well {
+	padding: 0.5em 1em;
+}
+
+article header h1 {
+	font-size: 20pt;
+}
+
+.hero-unit h1 {
+	font-size: 28pt;
+}
+
+.bitgram_top {
+	text-align: center;
+	padding: 1em;
+}
+
+.bitgram_sign {
+	font-family: Courier New, Courier, monospace;
+	font-size: 36pt;
+	font-weight: 800;
+	margin-top: 0.25em;
+	line-height: 1;
+}
+
+.bitgram_hex {
+	margin-top: -0.4em;
+	font-family: Courier New, Courier, monospace;
+	font-weight: 600;
+	font-size: 16pt;
+	letter-spacing: 0.10em;
+	color: #666;
+}
+
