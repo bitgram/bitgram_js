@@ -1,28 +1,35 @@
 //
 // lint at http://www.javascriptlint.com/online_lint.php
+// 1 warning:
 //
-function BitGram(containerId, sign, gridNum, cellSize) {
+function BitGram(containerId, sign, inputId, gridNum, cellSize) {
+
+	var defaults = {
+		SIGN:				"BitGram",
+		MAX_SIGN_NUM:		8,
+		COLORS:				["red", "orange", "yellow", "green", "blue", "indigo", "violet"],
+		COLOR_TRUE:			"#666",
+		COLOR_FALSE:		"#FFF",
+		GRID_NUM:			8,
+		CELL_SIZE:			20,
+		CLASS_SIGN:			"bitgram_sign",
+		CLASS_HEX:			"bitgram_hex"
+	};
+
 	this.containerElement = document.getElementById(containerId);
 	this.canvasElement = document.createElement('canvas');
 	this.signElement = document.createElement('div');
 	this.hexElement = document.createElement('div');
+	this.inputField = document.getElementById(inputId);
 
-	var MAX_SIGN_NUM = 8;
-	var COLORS_RANDOMLY = ["red", "orange", "yellow", "green", "blue", "indigo", "violet"];
-	var COLOR_TRUE = "#666";
-	var COLOR_FALSE = "#FFF";
-	var DEFAULT_GRID_NUM = 8;
-	var DEFAULT_CELL_SIZE = 20;
-	var DEFAULT_SIGN = "BitGram";
-	var DEFAULT_ALT_IMAGE_URL = "http://www.bitgram.net/img/logos/logo-block-160x160.png";
-	var DEFAULT_CLASS_SIGN = "bitgram_sign";
-	var DEFAULT_CLASS_HEX = "bitgram_hex";
-
-	this.sign      = sign     || DEFAULT_SIGN;
-	this.gridNum   = gridNum  || DEFAULT_GRID_NUM;
-	this.cellSize  = cellSize || DEFAULT_CELL_SIZE;
+	this.sign      = sign     || defaults.SIGN;
+	this.gridNum   = gridNum  || defaults.GRID_NUM;
+	this.cellSize  = cellSize || defaults.CELL_SIZE;
 	this.grid      = new Grid(this.gridNum);
+
+	this.color     = defaults.COLOR_TRUE;
 	this.colorMode = 0;		// 0: #3333, 1: single random, 2: multi random
+
 
 	BitGram.prototype.init = function() {
 		var _origin = this;
@@ -30,17 +37,29 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 			if (!containerElement) {
 				return;
 			}
-			signElement.setAttribute('class', DEFAULT_CLASS_SIGN);		
-			hexElement.setAttribute('class', DEFAULT_CLASS_HEX);
+			signElement.setAttribute('class', defaults.CLASS_SIGN);
+			hexElement.setAttribute('class', defaults.CLASS_HEX);
 
-			containerElement.appendChild(canvasElement);
-			containerElement.appendChild(signElement);
-			containerElement.appendChild(hexElement);	
+			var node = containerElement.firstChild;
+			containerElement.insertBefore( canvasElement, node );
+			containerElement.insertBefore( signElement, node );
+			containerElement.insertBefore( hexElement, node );
 
 			canvasElement._origin = _origin;
-			this.canvasElement.onclick = function() {
+			canvasElement.onclick = function() {
 				this._origin.changeColorMode();
 			};
+
+			if (inputField) {
+				inputField._origin = _origin;
+				inputField.onkeyup = function() {
+					this._origin.setSign(this.value);
+				};
+				inputField.onclick = function() {
+					this._origin.setSign("");
+					this.value = "";
+				};
+			}
 
 			updateCells();
 			draw();
@@ -48,12 +67,17 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 	};
 
 	BitGram.prototype.setSign = function(sign) {
-		this.grid.resetCells();
+		if (defaults.MAX_SIGN_NUM < sign.length) {
+			return;
+		}
+
 		if (!sign) {
-			this.sign = DEFAULT_SIGN;
+			this.sign = defaults.SIGN;
 		} else {
+			this.grid.resetCells();
 			this.sign = sign;
 		}
+
 		this.updateCells();
 		this.draw();
 	};
@@ -67,23 +91,19 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 		var context = this.canvasElement.getContext('2d');
 		this.canvasElement.width = this.canvasElement.height = this.gridNum * this.cellSize + 1;
 
-		var color = COLOR_TRUE;
-		if (this.colorMode == 1) {
-			color = this.getRandomColor();
-		}
-
 		var i;
 		for (i in this.grid.cells) {
 			var cell = this.grid.cells[i];
 
-
 			if (cell.bit) {
 				if (this.colorMode == 2) {
-					color = this.getRandomColor();
+					context.fillStyle = this.getRandomColor();
+
+				} else {
+					context.fillStyle = this.color;
 				}
-				context.fillStyle = color;
 			}	else {
-				context.fillStyle = COLOR_FALSE;
+				context.fillStyle = defaults.COLOR_FALSE;
 			}
 			var x = cell.x * this.cellSize + 0.5;
 			var y = cell.y * this.cellSize + 0.5;
@@ -105,8 +125,15 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 
 	BitGram.prototype.changeColorMode = function() {
 		this.colorMode++;
-		if (this.colorMode > 2) {
-			this.colorMode = 0;
+		switch (this.colorMode) {
+			case 0:  	this.color = defaults.COLOR_TRUE;
+						break;
+			case 1: 	this.color = this.getRandomColor();
+						break;
+			case 2: 	break;
+			default: 	this.colorMode = 0;
+						this.color = defaults.COLOR_TRUE;
+						break;
 		}
 		this.draw();
 		return this.colorMode;
@@ -116,7 +143,7 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 	BitGram.prototype.getSignAsHex = function() {
 		var code = "";
 		var i;
-		for (i = 0; i < MAX_SIGN_NUM; i++) {
+		for (i = 0; i < defaults.MAX_SIGN_NUM; i++) {
 			var ascii = this.sign.charCodeAt(i).toString(16).toUpperCase();
 			if (!ascii.match(/^[0-9ABCDEF][0-9ABCDEF]$/)) {
 				continue;
@@ -130,7 +157,7 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 		var code = "";
 
 		var i;
-		for (i = 0; i < MAX_SIGN_NUM; i++) {
+		for (i = 0; i < defaults.MAX_SIGN_NUM; i++) {
 			var ascii = this.sign.charCodeAt(i).toString(2);
 
 			if (isNaN(ascii)) {
@@ -159,10 +186,11 @@ function BitGram(containerId, sign, gridNum, cellSize) {
 	};
 
 	BitGram.prototype.getRandomColor = function() {
-		var r = Math.floor(Math.random() * COLORS_RANDOMLY.length);
-		return COLORS_RANDOMLY[r];
+		var r = Math.floor(Math.random() * defaults.COLORS.length);
+		return defaults.COLORS[r];
 	};
 
+	// initialize
 	this.init();
 }
 

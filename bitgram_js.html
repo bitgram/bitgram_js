@@ -1,16 +1,22 @@
+<!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
+		<title>BitGram JavaScript Sample</title>
 		<link rel="stylesheet" href="css/bitgram-default.css">
 	</head>
 	<body>
-		<div id="bitgram_top" class="bitgram_top"></div>
-
+		<div id="bitgram_top" class="bitgram_top">
+			<label>try to make your BitGram.</label><br>
+			<input id="input1" maxlength="8" placeholder="<= 8 alphabet.">
+		</div>
 		<!-- JavaScript Code -->
 		<script type="text/javascript" src="js/bitgram.js"></script>
 		<script type="text/javascript">
+			var bitgram1;
 			window.onload = function() {
-				var bitgram1 = new BitGram("bitgram_top", "BitGram" );
-			}
+				new BitGram("bitgram_top", "", "input1" );
+			};
 		</script>
 	</body>
 </html>
