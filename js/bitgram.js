@@ -1,10 +1,11 @@
 //
+// Class: BirGram
 // lint at http://www.javascriptlint.com/online_lint.php
 // 1 warning:
 //
-function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
+function BitGram(containerId, canvasId, sign, color, inputId, gridNum, cellSize) {
 
-	var defaults = {
+	this.defaults = {
 		SIGN:				"BitGram",
 		MAX_SIGN_NUM:		8,
 		COLORS:				["red", "orange", "yellow", "green", "blue", "indigo", "violet"],
@@ -13,7 +14,8 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 		GRID_NUM:			8,
 		CELL_SIZE:			20,
 		CLASS_SIGN:			"bitgram_sign",
-		CLASS_HEX:			"bitgram_hex"
+		CLASS_HEX:			"bitgram_hex",
+		CANVAS_ID: 			"bitgram_canvas" 
 	};
 
 	this.containerElement = document.getElementById(containerId);
@@ -22,21 +24,34 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 	this.hexElement = document.createElement('div');
 	this.inputField = document.getElementById(inputId);
 
-	this.sign      = sign     || defaults.SIGN;
-	this.gridNum   = gridNum  || defaults.GRID_NUM;
-	this.cellSize  = cellSize || defaults.CELL_SIZE;
-	this.grid      = new Grid(this.gridNum);
+	this.canvasId  = canvasId || this.defaults.CANVAS_ID;
+	this.sign      = sign     || this.defaults.SIGN;
+	this.gridNum   = gridNum  || this.defaults.GRID_NUM;
+	this.cellSize  = cellSize || this.defaults.CELL_SIZE;
 
-	this.color     = color || defaults.COLOR_TRUE;
+	this.color     = color || this.defaults.COLOR_TRUE;
 	this.colorMode = 0;		// 0: #3333, 1: single random, 2: multi random
 
+	this.grid      = new Grid(this.gridNum);
 
-	BitGram.prototype.init = function() {
+	// initialize
+	this.init();
+}
+
+//
+// BitGram.prototype
+//
+BitGram.prototype = {
+
+	// initiallize
+	init: function() {
 		var _origin = this;
 		with (this) {
 			if (!containerElement) {
 				return;
 			}
+			canvasElement.setAttribute('id', canvasId);
+
 			signElement.setAttribute('class', defaults.CLASS_SIGN);
 			hexElement.setAttribute('class', defaults.CLASS_HEX);
 
@@ -47,42 +62,51 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 
 			canvasElement._origin = _origin;
 			canvasElement.onclick = function() {
-				this._origin.changeColorMode();
+				_origin.changeColorMode();
 			};
 
 			if (inputField) {
+				inputField.style.imeMode = "disabled"; // IE, FF only
+				inputField.value = "";
 				inputField._origin = _origin;
-				inputField.onkeyup = function() {
-					this._origin.setSign(this.value);
+				inputField.onkeyup = function(event) {
+					if (event.keyCode == 13) {
+						this._origin.changeColorMode();
+					}
+					this.value = this._origin.setSign(this.value);					
 				};
 				inputField.onclick = function() {
-					this._origin.setSign("");
-					this.value = "";
+					this.value = this._origin.setSign("");
 				};
 			}
 
-			updateCells();
-			draw();
+			this.updateCells();
+			this.draw();
 		}
-	};
+	},
 
-	BitGram.prototype.setSign = function(sign) {
-		if (defaults.MAX_SIGN_NUM < sign.length) {
-			return;
-		}
-
+	setSign: function(sign) {
 		if (!sign) {
-			this.sign = defaults.SIGN;
-		} else {
+			this.sign = this.defaults.SIGN;
 			this.grid.resetCells();
-			this.sign = sign;
-		}
+			this.updateCells();
+			this.draw();
+			return "";
+		} else if (this.defaults.MAX_SIGN_NUM < sign.length) {
+			this.sign = sign.substring(0, this.defaults.MAX_SIGN_NUM);
+			return this.sign;
+		} 
 
+		this.sign = sign;
+
+		this.grid.resetCells();
 		this.updateCells();
 		this.draw();
-	};
 
-	BitGram.prototype.draw = function() {
+		return this.sign;
+	},
+
+	draw: function() {
 		if (!this.canvasElement.getContext) {
 			return false;
 		}
@@ -103,7 +127,7 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 					context.fillStyle = this.color;
 				}
 			}	else {
-				context.fillStyle = defaults.COLOR_FALSE;
+				context.fillStyle = this.defaults.COLOR_FALSE;
 			}
 			var x = cell.x * this.cellSize + 0.5;
 			var y = cell.y * this.cellSize + 0.5;
@@ -121,29 +145,28 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 			this.hexElement.textContent = this.getSignAsHex();
 		}
 		return true;
-	};
+	},
 
-	BitGram.prototype.changeColorMode = function() {
+	changeColorMode: function() {
 		this.colorMode++;
 		switch (this.colorMode) {
-			case 0:  	this.color = defaults.COLOR_TRUE;
+			case 0:  	this.color = this.defaults.COLOR_TRUE;
 						break;
 			case 1: 	this.color = this.getRandomColor();
 						break;
 			case 2: 	break;
 			default: 	this.colorMode = 0;
-						this.color = defaults.COLOR_TRUE;
+						this.color = this.defaults.COLOR_TRUE;
 						break;
 		}
 		this.draw();
 		return this.colorMode;
-	};
+	},
 
-
-	BitGram.prototype.getSignAsHex = function() {
+	getSignAsHex: function() {
 		var code = "";
 		var i;
-		for (i = 0; i < defaults.MAX_SIGN_NUM; i++) {
+		for (i = 0; i < this.defaults.MAX_SIGN_NUM; i++) {
 			var ascii = this.sign.charCodeAt(i).toString(16).toUpperCase();
 			if (!ascii.match(/^[0-9ABCDEF][0-9ABCDEF]$/)) {
 				continue;
@@ -151,13 +174,14 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 			code += ascii;
 		}
 		return code;
-	};
+	},
 
-	BitGram.prototype.getSignAsBin = function() {
+
+	getSignAsBin: function() {
 		var code = "";
 
 		var i;
-		for (i = 0; i < defaults.MAX_SIGN_NUM; i++) {
+		for (i = 0; i < this.defaults.MAX_SIGN_NUM; i++) {
 			var ascii = this.sign.charCodeAt(i).toString(2);
 
 			if (isNaN(ascii)) {
@@ -173,9 +197,9 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 			code += ascii;
 		}
 		return code;
-	};
+	},
 
-	BitGram.prototype.updateCells = function() {
+	updateCells: function() {
 		var bin = this.getSignAsBin();
 		var i;
 		for (i in this.grid.cells) {
@@ -183,39 +207,50 @@ function BitGram(containerId, sign, color, inputId, gridNum, cellSize) {
 				this.grid.cells[i].bit = true;
 			}
 		}
-	};
+	}, 
 
-	BitGram.prototype.getRandomColor = function() {
-		var r = Math.floor(Math.random() * defaults.COLORS.length);
-		return defaults.COLORS[r];
-	};
-
-	// initialize
-	this.init();
-}
+	getRandomColor: function() {
+		var r = Math.floor(Math.random() * this.defaults.COLORS.length);
+		return this.defaults.COLORS[r];
+	}
+};
 
 
+//
+// Class: Cell
+//
 function Cell(x, y, bit) {
 	this.x = x;
 	this.y = y;
 	this.bit = bit;
 }
 
-function Grid(gridNum) {
-	this.cells = [];
 
-	Grid.prototype.resetCells = function() {
+//
+// Class: Grid
+//
+function Grid(gridNum) {
+	this.gridNum = gridNum;
+	this.cells = [];
+	this.resetCells(gridNum);
+}
+
+//
+// Grid.prototype
+//
+Grid.prototype = {
+	resetCells: function() {
 		this.cells = [];
 		var x, y;
-		for (y = 0; y < gridNum; y++) {
-			for(x = 0; x < gridNum; x++) {
+		for (y = 0; y < this.gridNum; y++) {
+			for(x = 0; x < this.gridNum; x++) {
 				this.cells.push(new Cell(x, y, false));
 			}
 		}
-	};
+	}
+};
 
-	this.resetCells();
-}
+
 
 function sprite(element, pos1, pos2, interval) {
 	var flg = 0;
