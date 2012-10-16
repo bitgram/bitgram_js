@@ -2,11 +2,19 @@
 var bitgram = {};
 
 //
-// Class: BirGram
+// Class: bitgram.Logo
 // lint at http://www.javascriptlint.com/online_lint.php
 // 1 warning:
 //
-bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, cellSize) {
+// containerId - ロゴを表示するHTMLエレメントのID。 （必須)  
+// inputId: ロゴの文字を変更するためのテキストフィールドのID。  
+// sign: 文字の初期値。(デフォルト: "BitGram")  
+// color: ロゴのビットが立っているセルの色。(デフォルト: "#666")  
+// gridNum: ロゴのグリッド内のセルの数 (デフォルト: 8)  
+// cellSize: セルのピクセルサイズ　(デフォルト: 20)  
+// canvasId: ロゴのキャンバスに定義したいID (デフォルト: "bitgram_canvas") 
+//
+bitgram.Logo = function(containerId, inputId, sign, color, gridNum, cellSize, canvasId) {
 	this.defaults = {
 		SIGN:				"BitGram",
 		MAX_SIGN_NUM:		8,
@@ -41,10 +49,10 @@ bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, ce
 };
 
 //
-// BitGram.prototype
+// bitGram.Logo.prototype
 //
 // init: 			初期化。
-// setSign: 		文字（サイン)を設定し、canvasと文字を書き換書き換える。
+// setSign: 		文字（サイン)を設定し、canvasと文字を書き換える。
 // draw: 			canvas, 文字、16進数の文字を書き換える。
 // changeColorMode: カラーモード(0 - default, 1 - random, 2 - multi random) を切り替える
 // getSignAsHex: 	文字列(this.sign)を16進数に変換する。
@@ -52,7 +60,7 @@ bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, ce
 // updateCells: 	文字列(this.sign)に基づいてgridのデータを更新する。
 // getRandomColor: 	this.defaults.COLORSから任意の１つを取り出す。
 //
-
+//
 bitgram.Logo.prototype =  {
 	// initiallize
 	init: function() {
