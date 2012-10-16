@@ -2,11 +2,21 @@
 var bitgram = {};
 
 //
-// Class: BirGram
-// lint at http://www.javascriptlint.com/online_lint.php
-// 1 warning:
+// Class: bitgram.Logo
+// Since: v1.0 (2012/10/16)
 //
-bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, cellSize) {
+// lint at http://www.javascriptlint.com/online_lint.php
+// 1 warning: with statement.
+//
+// containerId: ロゴを表示するHTMLエレメントのID。 （必須)  
+// inputId:     ロゴの文字を変更するためのテキストフィールドのID。  
+// sign:        文字の初期値。(デフォルト: "BitGram")  
+// color:       ロゴのビットが立っているセルの色。(デフォルト: "#666")  
+// gridNum:     ロゴのグリッド内のセルの数 (デフォルト: 8)  
+// cellSize:    セルのピクセルサイズ　(デフォルト: 20)  
+// canvasId:    ロゴのキャンバスに定義したいID (デフォルト: "bitgram_canvas") 
+//
+bitgram.Logo = function(containerId, inputId, sign, color, gridNum, cellSize, canvasId) {
 	this.defaults = {
 		SIGN:				"BitGram",
 		MAX_SIGN_NUM:		8,
@@ -41,10 +51,10 @@ bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, ce
 };
 
 //
-// BitGram.prototype
+// bitgram.Logo.prototype
 //
 // init: 			初期化。
-// setSign: 		文字（サイン)を設定し、canvasと文字を書き換書き換える。
+// setSign: 		文字（サイン)を設定し、canvasと文字を書き換える。
 // draw: 			canvas, 文字、16進数の文字を書き換える。
 // changeColorMode: カラーモード(0 - default, 1 - random, 2 - multi random) を切り替える
 // getSignAsHex: 	文字列(this.sign)を16進数に変換する。
@@ -52,7 +62,7 @@ bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, ce
 // updateCells: 	文字列(this.sign)に基づいてgridのデータを更新する。
 // getRandomColor: 	this.defaults.COLORSから任意の１つを取り出す。
 //
-
+//
 bitgram.Logo.prototype =  {
 	// initiallize
 	init: function() {
@@ -226,6 +236,117 @@ bitgram.Logo.prototype =  {
 };
 
 
+
+//
+// Class: bitgram.RSSFeed
+// Since:       v1.1
+// Require:     jQuery 1.8
+//
+// lint at http://www.javascriptlint.com/online_lint.php
+// 0 error.
+//
+// containerId: target container Element ID. (require)
+// maxFeeds:    max feed number. (default:10)
+// maxChars:    max content character number. (default:200)
+//
+bitgram.RSSFeed = function(containerId, maxFeeds, maxChars) {
+	this.defaults = {
+		MAXFEEDS: 	10,
+		MAXCHARS: 	200,
+		CLASS_FEED_CONTAINER: "bitgram_feed_container",
+		CLASS_FEED_TITLE:     "bitgram_feed_title",
+		CLASS_ITEM_CONTAINER: "bitgram_item_container",
+		CLASS_ITEM_TITLE:     "bitgram_item_title",
+		CLASS_ITEM_DATE:      "bitgram_item_date",
+		CLASS_ITEM_DESC:      "bitgram_item_description",
+		LOADING_ICON:         "http://www.bitgram.net/img/loadinfo.net.gif"
+
+	};
+
+	this.containerElement = $("#" + containerId).addClass(this.defaults.CLASS_FEED_CONTAINER);
+
+	this.maxFeeds = maxFeeds || this.defaults.MAXFEEDS;
+	this.maxChars = maxChars || this.defaults.MAXCHARS;
+	this.feeds = [];
+
+};
+
+
+//
+// bitgram.RSSFeed.prototype
+//
+// getFeeds:　RSSを読み込み、コンストラクターのcontainerIdで得られたエレメントに追加する。
+//
+bitgram.RSSFeed.prototype = {
+	getLoadingImage: function() {
+		var loadingImage = $("<div>").css({"text-align":"center", "margin-top":"2.5em"});
+		loadingImage.append($("<img>").attr("src", this.defaults.LOADING_ICON));
+		return loadingImage;
+	},
+	//
+	getFeeds: function(RSSURL, maxFeeds, contentChars) {
+		var loadingImage = this.getLoadingImage();
+		this.containerElement.before(loadingImage);
+
+		this.containerElement.hide();
+		jQuery.ajax({
+			context: this,
+			url: RSSURL,
+			type: 'get',
+			dataType: 'xml',
+			async: true,
+
+			success: function(xml, status, xhr) {
+				var items = this.feeds;
+				var containerElement = this.containerElement;
+				var defaults = this.defaults;
+				var _maxFeeds = maxFeeds || this.maxFeeds;
+				var _contentChars = contentChars || this.maxChars;
+
+				var feedTitle = $(xml).find('channel title:first').text();
+				// var feedLink = $(xml).find('channel link:first').text(); ... Safari doesn't work.
+				var feedLink = $(xml).find('channel link:contains("http"):first').text();
+				console.log(feedLink);
+
+				feedTitleElement = $("<a>").addClass(defaults.CLASS_FEED_TITLE);
+				feedTitleElement.attr("href", feedLink).text(feedTitle);
+				containerElement.append(feedTitleElement);
+
+				var counter = 0;
+				$(xml).find('item').each( function() {
+					var title = $(this).find("title").text();
+					var titleLink = $(this).find("link").text();
+					var date = bitgram.dateFormat(new Date($(this).find("pubDate").text()));
+					var description = $(this).find("description").text();
+					if (_contentChars > 0) {
+						description = description.substring(0, _contentChars - 3 ) + "...";
+					}
+
+					var item = $("<div>").addClass(defaults.CLASS_ITEM_CONTAINER);
+					$("<a>").addClass(defaults.CLASS_ITEM_TITLE).attr("href", titleLink ).text(title).appendTo(item);
+					$("<div>").addClass(defaults.CLASS_ITEM_DATE).text(date).appendTo(item);
+					$("<div>").addClass(defaults.CLASS_ITEM_DESC).html(description).appendTo(item);
+					containerElement.append(item);
+					counter++;
+
+					if (counter >= _maxFeeds) {
+						loadingImage.hide();
+						containerElement.fadeIn();
+						return false;
+					}
+				});
+			}
+		});
+		return this.feeds;
+	}
+};
+
+
+
+//
+// Utility Class
+//
+
 //
 // Class: Cell
 //
@@ -261,6 +382,17 @@ bitgram.Grid.prototype = {
 };
 
 
+//
+// Utility function
+//
+
+bitgram.dateFormat = function(date) {
+	var year = date.getFullYear();
+	var month = date.getMonth() + 1;
+	var date = date.getDate();
+
+	return year + "/" + ("0" + month).slice(-2) + "/" + ("0" + date).slice(-2);
+}
 
 bitgram.sprite = function(element, pos1, pos2, interval) {
 	var flg = 0;

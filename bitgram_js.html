@@ -10,11 +10,15 @@
 			<label>try to make your BitGram.</label><br>
 			<input id="input1" maxlength="8" placeholder="<= 8 alphabet.">
 		</div>
+		<div id="feed">feeds</div>
 		<!-- JavaScript Code -->
+		<script type="text/javascript" src="js/jquery-1.8.2.min.js"></script>
 		<script type="text/javascript" src="js/bitgram.js"></script>
 		<script type="text/javascript">
 			window.onload = function() {
 				var logo = new bitgram.Logo("bitgram_top", "input1");
+				var feed = new bitgram.RSSFeed("feed");
+				var items = feed.getFeeds("http://www.bitgram.net/blog/feed");
 			};
 		</script>
 	</body>
