@@ -41,6 +41,16 @@ function BitGram(containerId, canvasId, sign, color, inputId, gridNum, cellSize)
 //
 // BitGram.prototype
 //
+// init: 			初期化。
+// setSign: 		文字（サイン)を設定し、canvasと文字を書き換書き換える。
+// draw: 			canvas, 文字、16進数の文字を書き換える。
+// changeColorMode: カラーモード(0 - default, 1 - random, 2 - multi random) を切り替える
+// getSignAsHex: 	文字列(this.sign)を16進数に変換する。
+// getSignAsBin: 	文字列(this.sign)を2進数に変換する。
+// updateCells: 	文字列(this.sign)に基づいてgridのデータを更新する。
+// getRandomColor: 	this.defaults.COLORSから任意の１つを取り出す。
+//
+
 BitGram.prototype = {
 
 	// initiallize
