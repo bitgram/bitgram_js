@@ -1,10 +1,12 @@
+// bitbram naming space.
+var bitgram = {};
+
 //
 // Class: BirGram
 // lint at http://www.javascriptlint.com/online_lint.php
 // 1 warning:
 //
-function BitGram(containerId, canvasId, sign, color, inputId, gridNum, cellSize) {
-
+bitgram.Logo = function(containerId, inputId, canvasId, sign, color, gridNum, cellSize) {
 	this.defaults = {
 		SIGN:				"BitGram",
 		MAX_SIGN_NUM:		8,
@@ -19,24 +21,24 @@ function BitGram(containerId, canvasId, sign, color, inputId, gridNum, cellSize)
 	};
 
 	this.containerElement = document.getElementById(containerId);
-	this.canvasElement = document.createElement('canvas');
-	this.signElement = document.createElement('div');
-	this.hexElement = document.createElement('div');
-	this.inputField = document.getElementById(inputId);
+	this.canvasElement    = document.createElement('canvas');
+	this.signElement      = document.createElement('div');
+	this.hexElement       = document.createElement('div');
+	this.inputField       = document.getElementById(inputId);
 
-	this.canvasId  = canvasId || this.defaults.CANVAS_ID;
-	this.sign      = sign     || this.defaults.SIGN;
-	this.gridNum   = gridNum  || this.defaults.GRID_NUM;
-	this.cellSize  = cellSize || this.defaults.CELL_SIZE;
+	this.canvasId         = canvasId || this.defaults.CANVAS_ID;
+	this.sign             = sign     || this.defaults.SIGN;
+	this.gridNum          = gridNum  || this.defaults.GRID_NUM;
+	this.cellSize         = cellSize || this.defaults.CELL_SIZE;
 
-	this.color     = color || this.defaults.COLOR_TRUE;
-	this.colorMode = 0;		// 0: #3333, 1: single random, 2: multi random
+	this.color            = color || this.defaults.COLOR_TRUE;
+	this.colorMode        = 0;		// 0: #3333, 1: single random, 2: multi random
 
-	this.grid      = new Grid(this.gridNum);
+	this.grid             = new bitgram.Grid(this.gridNum);
 
 	// initialize
 	this.init();
-}
+};
 
 //
 // BitGram.prototype
@@ -51,8 +53,7 @@ function BitGram(containerId, canvasId, sign, color, inputId, gridNum, cellSize)
 // getRandomColor: 	this.defaults.COLORSから任意の１つを取り出す。
 //
 
-BitGram.prototype = {
-
+bitgram.Logo.prototype =  {
 	// initiallize
 	init: function() {
 		var _origin = this;
@@ -89,7 +90,6 @@ BitGram.prototype = {
 					this.value = this._origin.setSign("");
 				};
 			}
-
 			this.updateCells();
 			this.draw();
 		}
@@ -229,7 +229,7 @@ BitGram.prototype = {
 //
 // Class: Cell
 //
-function Cell(x, y, bit) {
+bitgram.Cell = function(x, y, bit) {
 	this.x = x;
 	this.y = y;
 	this.bit = bit;
@@ -239,7 +239,7 @@ function Cell(x, y, bit) {
 //
 // Class: Grid
 //
-function Grid(gridNum) {
+bitgram.Grid = function(gridNum) {
 	this.gridNum = gridNum;
 	this.cells = [];
 	this.resetCells(gridNum);
@@ -248,13 +248,13 @@ function Grid(gridNum) {
 //
 // Grid.prototype
 //
-Grid.prototype = {
+bitgram.Grid.prototype = {
 	resetCells: function() {
 		this.cells = [];
 		var x, y;
 		for (y = 0; y < this.gridNum; y++) {
 			for(x = 0; x < this.gridNum; x++) {
-				this.cells.push(new Cell(x, y, false));
+				this.cells.push(new bitgram.Cell(x, y, false));
 			}
 		}
 	}
@@ -262,7 +262,7 @@ Grid.prototype = {
 
 
 
-function sprite(element, pos1, pos2, interval) {
+bitgram.sprite = function(element, pos1, pos2, interval) {
 	var flg = 0;
 	var timerId = setInterval( function() { 
 		if (flg === 0) {
