@@ -259,7 +259,7 @@ bitgram.RSSFeed = function(containerId, maxFeeds, maxChars) {
 		CLASS_ITEM_TITLE:     "bitgram_item_title",
 		CLASS_ITEM_DATE:      "bitgram_item_date",
 		CLASS_ITEM_DESC:      "bitgram_item_description",
-		LOADING_ICON:         "http://www.bitgram.net/img/loadinfo.net.gif"
+		LOADING_ICON:         "/img/loadinfo.net.gif"
 
 	};
 
@@ -295,6 +295,7 @@ bitgram.RSSFeed.prototype = {
 			type: 'get',
 			dataType: 'xml',
 			async: true,
+			timeout: 5000,
 
 			success: function(xml, status, xhr) {
 				var items = this.feeds;
@@ -306,7 +307,6 @@ bitgram.RSSFeed.prototype = {
 				var feedTitle = $(xml).find('channel title:first').text();
 				// var feedLink = $(xml).find('channel link:first').text(); ... Safari doesn't work.
 				var feedLink = $(xml).find('channel link:contains("http"):first').text();
-				console.log(feedLink);
 
 				feedTitleElement = $("<a>").addClass(defaults.CLASS_FEED_TITLE);
 				feedTitleElement.attr("href", feedLink).text(feedTitle);
@@ -335,7 +335,15 @@ bitgram.RSSFeed.prototype = {
 						return false;
 					}
 				});
-			}
+			},
+
+			error: function() {
+				var containerElement = this.containerElement;
+				loadingImage.hide();
+				containerElement.show();
+				containerElement.append($("<span>").addClass("text-error").text("ERROR: bitgram.RSSFeed.getFeeds()."));
+
+			},
 		});
 		return this.feeds;
 	}
